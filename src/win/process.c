@@ -956,6 +956,7 @@ done:
   /* If an error happened, queue the exit req. */
   if (err.code != UV_OK) {
     process->exit_cb_pending = 1;
+    process->spawn_error = err;
     uv_insert_pending_req(loop, (uv_req_t*) &process->exit_req);
   }
 
