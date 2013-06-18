@@ -1409,3 +1409,8 @@ void uv__stream_close(uv_stream_t* handle) {
 
   assert(!uv__io_active(&handle->io_watcher, UV__POLLIN | UV__POLLOUT));
 }
+
+
+int uv_stream_set_blocking(uv_stream_t* handle, int blocking) {
+  assert(0 && "implement me");
+}
