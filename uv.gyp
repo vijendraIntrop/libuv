@@ -102,7 +102,9 @@
             'libraries': [
               '-lws2_32.lib',
               '-lpsapi.lib',
-              '-liphlpapi.lib'
+              '-liphlpapi.lib',
+              '-ladvapi32.lib',
+              '-lshell32.lib'
             ],
           },
         }, { # Not Windows i.e. POSIX
