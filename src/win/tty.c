@@ -831,18 +831,17 @@ int uv_tty_read_start(uv_tty_t* handle, uv_alloc_cb alloc_cb,
 }
 
 
-const uint64_t UV_WINDOWS_8				= 0x0000000600000002;
-const uint64_t UV_WINDOWS_7				= 0x0000000600000001;
-const uint64_t UV_WINDOWS_Vista			= 0x0000000600000000;
-const uint64_t UV_WINDOWS_SERVER_2003	= 0x0000000500000002;
-const uint64_t UV_WINDOWS_XP			= 0x0000000500000001;
-const uint64_t UV_WINDOWS_UNKNOWN		= 0;
+const uint64_t UV_WINDOWS_8             = 0x0000000600000002;
+const uint64_t UV_WINDOWS_7             = 0x0000000600000001;
+const uint64_t UV_WINDOWS_Vista         = 0x0000000600000000;
+const uint64_t UV_WINDOWS_SERVER_2003   = 0x0000000500000002;
+const uint64_t UV_WINDOWS_XP            = 0x0000000500000001;
+const uint64_t UV_WINDOWS_UNKNOWN       = 0;
 
 
 uint64_t uv_get_os_version()
 {
   OSVERSIONINFOEX osvi;
-  uint64_t version;
 
   ZeroMemory(&osvi, sizeof(OSVERSIONINFOEX));
   osvi.dwOSVersionInfoSize = sizeof(OSVERSIONINFOEX);
@@ -852,8 +851,7 @@ uint64_t uv_get_os_version()
   }
   else
   {
-	version = (((uint64_t)osvi.dwMajorVersion) << 32) | (uint64_t)osvi.dwMinorVersion;
-    return version;
+	return (((uint64_t)osvi.dwMajorVersion) << 32) | (uint64_t)osvi.dwMinorVersion;
   }
 }
 
@@ -900,7 +898,7 @@ int uv_tty_read_stop(uv_tty_t* handle) {
 	if(uv_get_os_version() >= UV_WINDOWS_8) {
       /* Forces any pending ReadConsole to exit before we close the handle */
       uv_tty_press_key(handle, '\r');
-	}
+    }
     /* Closing this handle will cancel the ReadConsole operation */
     CloseHandle(handle->read_line_handle);
     handle->read_line_handle = NULL;
