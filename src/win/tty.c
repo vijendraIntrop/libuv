@@ -851,7 +851,7 @@ uint64_t uv_get_os_version()
   }
   else
   {
-	return (((uint64_t)osvi.dwMajorVersion) << 32) | (uint64_t)osvi.dwMinorVersion;
+    return (((uint64_t)osvi.dwMajorVersion) << 32) | (uint64_t)osvi.dwMinorVersion;
   }
 }
 
