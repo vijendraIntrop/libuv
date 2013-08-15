@@ -47,19 +47,6 @@
 #define ANSI_IN_STRING        0x40
 #define ANSI_BACKSLASH_SEEN   0x80
 
-#if !defined(_INC_SDKDDKVER)
-#define _WIN32_WINNT_NT4                    0x0400
-#define _WIN32_WINNT_WIN2K                  0x0500
-#define _WIN32_WINNT_WINXP                  0x0501
-#define _WIN32_WINNT_WS03                   0x0502
-#define _WIN32_WINNT_WIN6                   0x0600
-#define _WIN32_WINNT_VISTA                  0x0600
-#define _WIN32_WINNT_WS08                   0x0600
-#define _WIN32_WINNT_LONGHORN               0x0600
-#define _WIN32_WINNT_WIN7                   0x0601
-#define _WIN32_WINNT_WIN8                   0x0602
-#endif
-
 
 static void uv_tty_update_virtual_window(CONSOLE_SCREEN_BUFFER_INFO* info);
 

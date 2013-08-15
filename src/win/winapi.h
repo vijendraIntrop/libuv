@@ -4385,6 +4385,25 @@ typedef NTSTATUS (NTAPI *sNtQuerySystemInformation)
   } OVERLAPPED_ENTRY, *LPOVERLAPPED_ENTRY;
 #endif
 
+/* from Windows8 SDK sdkddkver.h */
+#if !defined(_INC_SDKDDKVER)
+# define _WIN32_WINNT_NT4                    0x0400
+# define _WIN32_WINNT_WIN2K                  0x0500
+# define _WIN32_WINNT_WINXP                  0x0501
+# define _WIN32_WINNT_WS03                   0x0502
+# define _WIN32_WINNT_WIN6                   0x0600
+# define _WIN32_WINNT_VISTA                  0x0600
+# define _WIN32_WINNT_WS08                   0x0600
+# define _WIN32_WINNT_LONGHORN               0x0600
+# define _WIN32_WINNT_WIN7                   0x0601
+# define _WIN32_WINNT_WIN8                   0x0602
+#endif
+
+/* for Windows7 SDK users */
+#if !defined(_WIN32_WINNT_WIN8)
+# define _WIN32_WINNT_WIN8                   0x0602
+#endif
+
 /* from wincon.h */
 #ifndef ENABLE_INSERT_MODE
 # define ENABLE_INSERT_MODE 0x20
