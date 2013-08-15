@@ -104,7 +104,8 @@
               '-lpsapi.lib',
               '-liphlpapi.lib',
               '-ladvapi32.lib',
-              '-lshell32.lib'
+              '-lshell32.lib',
+              '-luser32.lib'
             ],
           },
         }, { # Not Windows i.e. POSIX
