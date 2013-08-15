@@ -41,6 +41,14 @@ shift
 goto next-arg
 :args-done
 
+@rem Look for Visual Studio 2012
+if not defined VS110COMNTOOLS goto vc-set-2010
+if not exist "%VS110COMNTOOLS%\..\..\vc\vcvarsall.bat" goto vc-set-2010
+call "%VS110COMNTOOLS%\..\..\vc\vcvarsall.bat" %vs_toolset%
+set GYP_MSVS_VERSION=2012
+goto select-target
+
+:vc-set-2010
 @rem Look for Visual Studio 2010
 if not defined VS100COMNTOOLS goto vc-set-2008
 if not exist "%VS100COMNTOOLS%\..\..\vc\vcvarsall.bat" goto vc-set-2008
@@ -77,12 +85,13 @@ if errorlevel 1 goto gyp_install_failed
 goto have_gyp
 
 :gyp_install_failed
-echo Failed to download gyp. Make sure you have subversion installed, or
+echo Failed to download gyp. Make sure you have git installed, or
 echo manually install gyp into %~dp0build\gyp.
-goto exit
+exit /b 1
 
 :have_gyp
-python gyp_uv -Dtarget_arch=%target_arch% -Dlibrary=%library%
+if not defined PYTHON set PYTHON="python"
+%PYTHON% gyp_uv -Dtarget_arch=%target_arch% -Dlibrary=%library%
 if errorlevel 1 goto create-msvs-files-failed
 if not exist uv.sln goto create-msvs-files-failed
 echo Project files generated.
@@ -102,7 +111,7 @@ goto run
 @rem Build the sln with msbuild.
 :msbuild-found
 msbuild uv.sln /t:%target% /p:Configuration=%config% /p:Platform="%platform%" /clp:NoSummary;NoItemAndPropertyList;Verbosity=minimal /nologo
-if errorlevel 1 goto exit
+if errorlevel 1 exit /b 1
 
 :run
 @rem Run tests if requested.
@@ -114,7 +123,7 @@ goto exit
 
 :create-msvs-files-failed
 echo Failed to create vc project files.
-goto exit
+exit /b 1
 
 :help
 echo vcbuild.bat [debug/release] [test/bench] [clean] [noprojgen] [nobuild] [x86/x64] [static/shared]

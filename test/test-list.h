@@ -23,6 +23,7 @@ TEST_DECLARE   (platform_output)
 TEST_DECLARE   (callback_order)
 TEST_DECLARE   (run_once)
 TEST_DECLARE   (run_nowait)
+TEST_DECLARE   (loop_stop)
 TEST_DECLARE   (barrier_1)
 TEST_DECLARE   (barrier_2)
 TEST_DECLARE   (barrier_3)
@@ -94,9 +95,14 @@ TEST_DECLARE   (shutdown_eof)
 TEST_DECLARE   (callback_stack)
 TEST_DECLARE   (error_message)
 TEST_DECLARE   (timer)
+TEST_DECLARE   (timer_init)
 TEST_DECLARE   (timer_again)
 TEST_DECLARE   (timer_start_twice)
 TEST_DECLARE   (timer_order)
+TEST_DECLARE   (timer_huge_timeout)
+TEST_DECLARE   (timer_huge_repeat)
+TEST_DECLARE   (timer_run_once)
+TEST_DECLARE   (timer_from_check)
 TEST_DECLARE   (idle_starvation)
 TEST_DECLARE   (loop_handles)
 TEST_DECLARE   (get_loadavg)
@@ -124,14 +130,17 @@ TEST_DECLARE   (pipe_ref2)
 TEST_DECLARE   (pipe_ref3)
 TEST_DECLARE   (pipe_ref4)
 TEST_DECLARE   (process_ref)
+TEST_DECLARE   (has_ref)
 TEST_DECLARE   (active)
 TEST_DECLARE   (embed)
 TEST_DECLARE   (async)
+TEST_DECLARE   (async_null_cb)
 TEST_DECLARE   (get_currentexe)
 TEST_DECLARE   (process_title)
 TEST_DECLARE   (cwd_and_chdir)
 TEST_DECLARE   (get_memory)
 TEST_DECLARE   (hrtime)
+TEST_DECLARE   (getaddrinfo_fail)
 TEST_DECLARE   (getaddrinfo_basic)
 TEST_DECLARE   (getaddrinfo_concurrent)
 TEST_DECLARE   (getsockname_tcp)
@@ -152,6 +161,7 @@ TEST_DECLARE   (spawn_preserve_env)
 TEST_DECLARE   (spawn_setuid_fails)
 TEST_DECLARE   (spawn_setgid_fails)
 TEST_DECLARE   (spawn_stdout_to_file)
+TEST_DECLARE   (spawn_auto_unref)
 TEST_DECLARE   (fs_poll)
 TEST_DECLARE   (kill)
 TEST_DECLARE   (fs_file_noent)
@@ -202,6 +212,7 @@ TEST_DECLARE   (dlerror)
 TEST_DECLARE   (poll_duplex)
 TEST_DECLARE   (poll_unidirectional)
 TEST_DECLARE   (poll_close)
+TEST_DECLARE   (ip6_addr_link_local)
 #ifdef _WIN32
 TEST_DECLARE   (spawn_detect_pipe_name_collisions_on_windows)
 TEST_DECLARE   (argument_escaping)
@@ -214,6 +225,9 @@ TEST_DECLARE   (spawn_setuid_setgid)
 TEST_DECLARE   (we_get_signal)
 TEST_DECLARE   (we_get_signals)
 TEST_DECLARE   (signal_multiple_loops)
+#endif
+#ifdef __APPLE__
+TEST_DECLARE   (osx_select)
 #endif
 HELPER_DECLARE (tcp4_echo_server)
 HELPER_DECLARE (tcp6_echo_server)
@@ -229,6 +243,7 @@ TASK_LIST_START
 #endif
   TEST_ENTRY  (run_once)
   TEST_ENTRY  (run_nowait)
+  TEST_ENTRY  (loop_stop)
   TEST_ENTRY  (barrier_1)
   TEST_ENTRY  (barrier_2)
   TEST_ENTRY  (barrier_3)
@@ -333,9 +348,14 @@ TASK_LIST_START
   TEST_ENTRY  (error_message)
 
   TEST_ENTRY  (timer)
+  TEST_ENTRY  (timer_init)
   TEST_ENTRY  (timer_again)
   TEST_ENTRY  (timer_start_twice)
   TEST_ENTRY  (timer_order)
+  TEST_ENTRY  (timer_huge_timeout)
+  TEST_ENTRY  (timer_huge_repeat)
+  TEST_ENTRY  (timer_run_once)
+  TEST_ENTRY  (timer_from_check)
 
   TEST_ENTRY  (idle_starvation)
 
@@ -367,6 +387,7 @@ TASK_LIST_START
   TEST_ENTRY  (pipe_ref4)
   TEST_HELPER (pipe_ref4, pipe_echo_server)
   TEST_ENTRY  (process_ref)
+  TEST_ENTRY  (has_ref)
 
   TEST_ENTRY  (loop_handles)
   TEST_ENTRY  (walk_handles)
@@ -376,6 +397,7 @@ TASK_LIST_START
   TEST_ENTRY  (embed)
 
   TEST_ENTRY  (async)
+  TEST_ENTRY  (async_null_cb)
 
   TEST_ENTRY  (get_currentexe)
 
@@ -389,6 +411,7 @@ TASK_LIST_START
 
   TEST_ENTRY  (hrtime)
 
+  TEST_ENTRY  (getaddrinfo_fail)
   TEST_ENTRY  (getaddrinfo_basic)
   TEST_ENTRY  (getaddrinfo_concurrent)
 
@@ -413,6 +436,7 @@ TASK_LIST_START
   TEST_ENTRY  (spawn_setuid_fails)
   TEST_ENTRY  (spawn_setgid_fails)
   TEST_ENTRY  (spawn_stdout_to_file)
+  TEST_ENTRY  (spawn_auto_unref)
   TEST_ENTRY  (fs_poll)
   TEST_ENTRY  (kill)
 
@@ -428,6 +452,10 @@ TASK_LIST_START
   TEST_ENTRY  (we_get_signal)
   TEST_ENTRY  (we_get_signals)
   TEST_ENTRY  (signal_multiple_loops)
+#endif
+
+#ifdef __APPLE__
+  TEST_ENTRY (osx_select)
 #endif
 
   TEST_ENTRY  (fs_file_noent)
@@ -474,6 +502,7 @@ TASK_LIST_START
   TEST_ENTRY  (strlcpy)
   TEST_ENTRY  (strlcat)
   TEST_ENTRY  (dlerror)
+  TEST_ENTRY  (ip6_addr_link_local)
 #if 0
   /* These are for testing the test runner. */
   TEST_ENTRY  (fail_always)

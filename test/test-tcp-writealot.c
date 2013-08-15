@@ -26,8 +26,8 @@
 
 
 #define WRITES            3
-#define CHUNKS_PER_WRITE  3
-#define CHUNK_SIZE        10485760 /* 10 MB */
+#define CHUNKS_PER_WRITE  4096
+#define CHUNK_SIZE        10024 /* 10 kb */
 
 #define TOTAL_BYTES       (WRITES * CHUNKS_PER_WRITE * CHUNK_SIZE)
 
@@ -83,7 +83,7 @@ static void read_cb(uv_stream_t* tcp, ssize_t nread, uv_buf_t buf) {
     bytes_received_done += nread;
   }
   else {
-    ASSERT(uv_last_error(uv_default_loop()).code == UV_EOF);
+    ASSERT(nread == UV_EOF);
     printf("GOT EOF\n");
     uv_close((uv_handle_t*)tcp, close_cb);
   }
@@ -96,8 +96,7 @@ static void write_cb(uv_write_t* req, int status) {
   ASSERT(req != NULL);
 
   if (status) {
-    uv_err_t err = uv_last_error(uv_default_loop());
-    fprintf(stderr, "uv_write error: %s\n", uv_strerror(err));
+    fprintf(stderr, "uv_write error: %s\n", uv_strerror(status));
     ASSERT(0);
   }
 
