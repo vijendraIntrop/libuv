@@ -128,7 +128,6 @@ int uv_loop_init(uv_loop_t* loop) {
   /* To prevent uninitialized memory access, loop->time must be intialized */
   /* to zero before calling uv_update_time for the first time. */
   loop->time = 0;
-  loop->last_tick_count = 0;
   uv_update_time(loop);
 
   QUEUE_INIT(&loop->handle_queue);

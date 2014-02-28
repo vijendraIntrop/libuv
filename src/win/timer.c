@@ -29,33 +29,14 @@
 
 
 void uv_update_time(uv_loop_t* loop) {
-  DWORD ticks;
-  ULARGE_INTEGER time;
+  uint64_t newTime = uv_hrtime() / 1e9;
 
-  ticks = GetTickCount();
-
-  time.QuadPart = loop->time;
-
-  /* GetTickCount() can conceivably wrap around, so when the current tick */
-  /* count is lower than the last tick count, we'll assume it has wrapped. */
-  /* uv_poll must make sure that the timer can never overflow more than */
-  /* once between two subsequent uv_update_time calls. */
-  time.LowPart = ticks;
-  if (ticks < loop->last_tick_count)
-    time.HighPart++;
-
-  /* Remember the last tick count. */
-  loop->last_tick_count = ticks;
-
-  /* The GetTickCount() resolution isn't too good. Sometimes it'll happen */
-  /* that GetQueuedCompletionStatus() or GetQueuedCompletionStatusEx() has */
-  /* waited for a couple of ms but this is not reflected in the GetTickCount */
-  /* result yet. Therefore whenever GetQueuedCompletionStatus times out */
+  /* Whenever GetQueuedCompletionStatus times out */
   /* we'll add the number of ms that it has waited to the current loop time. */
   /* When that happened the loop time might be a little ms farther than what */
   /* we've just computed, and we shouldn't update the loop time. */
-  if (loop->time < time.QuadPart)
-    loop->time = time.QuadPart;
+  if (loop->time < newTime)
+    loop->time = newTime;
 }
 
 
