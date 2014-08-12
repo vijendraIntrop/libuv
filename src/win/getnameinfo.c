@@ -46,7 +46,7 @@ static void uv__getnameinfo_work(struct uv__work* w) {
   int ret = 0;
 
   req = container_of(w, uv_getnameinfo_t, work_req);
-  if (!GetNameInfoW((struct sockaddr*)&req->storage,
+  if (GetNameInfoW((struct sockaddr*)&req->storage,
                      sizeof(req->storage),
                      host,
                      ARRAY_SIZE(host),
