@@ -244,7 +244,6 @@ void uv_poll_endgame(uv_loop_t* loop, uv_poll_t* handle);
 void uv_timer_endgame(uv_loop_t* loop, uv_timer_t* handle);
 
 DWORD uv__next_timeout(const uv_loop_t* loop);
-void uv__time_forward(uv_loop_t* loop, uint64_t msecs);
 void uv_process_timers(uv_loop_t* loop);
 
 
@@ -323,6 +322,7 @@ void uv__fs_poll_endgame(uv_loop_t* loop, uv_fs_poll_t* handle);
  */
 void uv__util_init();
 
+uint64_t uv__hrtime(double scale);
 int uv_parent_pid();
 __declspec(noreturn) void uv_fatal_error(const int errorno, const char* syscall);
 

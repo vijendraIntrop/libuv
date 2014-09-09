@@ -138,7 +138,6 @@ int uv_loop_init(uv_loop_t* loop) {
    * to zero before calling uv_update_time for the first time.
    */
   loop->time = 0;
-  loop->last_tick_count = 0;
   uv_update_time(loop);
 
   QUEUE_INIT(&loop->wq);
@@ -316,13 +315,9 @@ static void uv_poll(uv_loop_t* loop, DWORD timeout) {
   } else if (GetLastError() != WAIT_TIMEOUT) {
     /* Serious error */
     uv_fatal_error(GetLastError(), "GetQueuedCompletionStatus");
-  } else {
-    /* We're sure that at least `timeout` milliseconds have expired, but
-     * this may not be reflected yet in the GetTickCount() return value.
-     * Therefore we ensure it's taken into account here.
-     */
-    uv__time_forward(loop, timeout);
   }
+
+  uv_update_time(loop);
 }
 
 
@@ -349,13 +344,9 @@ static void uv_poll_ex(uv_loop_t* loop, DWORD timeout) {
   } else if (GetLastError() != WAIT_TIMEOUT) {
     /* Serious error */
     uv_fatal_error(GetLastError(), "GetQueuedCompletionStatusEx");
-  } else if (timeout > 0) {
-    /* We're sure that at least `timeout` milliseconds have expired, but
-     * this may not be reflected yet in the GetTickCount() return value.
-     * Therefore we ensure it's taken into account here.
-     */
-    uv__time_forward(loop, timeout);
   }
+
+  uv_update_time(loop);
 }
 
 
