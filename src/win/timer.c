@@ -31,10 +31,18 @@
 /* The number of milliseconds in one second. */
 #define UV__MILLISEC 1000
 
-
 void uv_update_time(uv_loop_t* loop) {
-  uint64_t new_time = uv__hrtime(UV__MILLISEC);
-  loop->time = new_time;
+  /* Invalidate the loop time, so that uv_now() will actually update it. */
+  loop->time_ = 0;
+}
+
+uint64_t uv_now(const uv_loop_t* loop) {
+  uv_loop_t* mutable_loop;
+  if (!loop->time_) {
+    mutable_loop = (uv_loop_t*) loop;
+    mutable_loop->time_ = uv__hrtime(UV__MILLISEC);
+  }
+  return loop->time_;
 }
 
 
@@ -96,7 +104,7 @@ int uv_timer_start(uv_timer_t* handle, uv_timer_cb timer_cb, uint64_t timeout,
   }
 
   handle->timer_cb = timer_cb;
-  handle->due = get_clamped_due_time(loop->time, timeout);
+  handle->due = get_clamped_due_time(uv_now(loop), timeout);
   handle->repeat = repeat;
   handle->flags |= UV_HANDLE_ACTIVE;
   uv__handle_start(handle);
@@ -141,7 +149,7 @@ int uv_timer_again(uv_timer_t* handle) {
   }
 
   if (handle->repeat) {
-    handle->due = get_clamped_due_time(loop->time, handle->repeat);
+    handle->due = get_clamped_due_time(uv_now(loop), handle->repeat);
 
     if (RB_INSERT(uv_timer_tree_s, &loop->timers, handle) != NULL) {
       uv_fatal_error(ERROR_INVALID_DATA, "RB_INSERT");
@@ -177,7 +185,7 @@ DWORD uv__next_timeout(const uv_loop_t* loop) {
    */
   timer = RB_MIN(uv_timer_tree_s, &((uv_loop_t*)loop)->timers);
   if (timer) {
-    delta = timer->due - loop->time;
+    delta = timer->due - uv_now(loop);
     if (delta >= UINT_MAX - 1) {
       /* A timeout value of UINT_MAX means infinite, so that's no good. */
       return UINT_MAX - 1;
@@ -199,15 +207,15 @@ void uv_process_timers(uv_loop_t* loop) {
 
   /* Call timer callbacks */
   for (timer = RB_MIN(uv_timer_tree_s, &loop->timers);
-       timer != NULL && timer->due <= loop->time;
+       timer != NULL && timer->due <= uv_now(loop);
        timer = RB_MIN(uv_timer_tree_s, &loop->timers)) {
     RB_REMOVE(uv_timer_tree_s, &loop->timers, timer);
 
     if (timer->repeat != 0) {
       /* If it is a repeating timer, reschedule with repeat timeout. */
       timer->due = get_clamped_due_time(timer->due, timer->repeat);
-      if (timer->due < loop->time) {
-        timer->due = loop->time;
+      if (timer->due < uv_now(loop)) {
+        timer->due = uv_now(loop);
       }
       if (RB_INSERT(uv_timer_tree_s, &loop->timers, timer) != NULL) {
         uv_fatal_error(ERROR_INVALID_DATA, "RB_INSERT");
