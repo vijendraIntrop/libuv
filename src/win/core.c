@@ -133,11 +133,8 @@ int uv_loop_init(uv_loop_t* loop) {
   if (loop->iocp == NULL)
     return uv_translate_sys_error(GetLastError());
 
-  /* To prevent uninitialized memory access, loop->time must be intialized
-   * to zero before calling uv_update_time for the first time.
-   */
-  loop->time = 0;
-  uv_update_time(loop);
+  loop->cached_time = 0;
+  loop->cached_time_is_valid = 0;
 
   QUEUE_INIT(&loop->wq);
   QUEUE_INIT(&loop->handle_queue);

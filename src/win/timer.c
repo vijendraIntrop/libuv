@@ -33,14 +33,34 @@
 
 
 void uv_update_time(uv_loop_t* loop) {
-  uint64_t new_time = uv__hrtime(UV__MILLISEC);
-  if (new_time > loop->time) {
-    loop->time = new_time;
-  }
+  /* Invalidate the loop time, so that the next invocation of uv__loop_time()
+   * will actually update it.
+   */
+  loop->cached_time_is_valid = 0;
 }
 
 void uv__time_forward(uv_loop_t* loop, uint64_t msecs) {
-  loop->time += msecs;
+  loop->cached_time += msecs;
+  loop->cached_time_is_valid = 0;
+}
+
+uint64_t uv__loop_time(const uv_loop_t* loop) {
+  uv_loop_t* mutable_loop;
+  uint64_t new_time;
+  if (!loop->cached_time_is_valid) {
+    new_time = uv__hrtime(UV__MILLISEC);
+    mutable_loop = (uv_loop_t*) loop;
+    if (new_time > mutable_loop->cached_time) {
+      mutable_loop->cached_time = new_time;
+    }
+    mutable_loop->cached_time_is_valid = 1;
+  }
+
+  return loop->cached_time;
+}
+
+uint64_t uv_now(const uv_loop_t* loop) {
+  return uv__loop_time(loop);
 }
 
 
@@ -104,7 +124,7 @@ int uv_timer_start(uv_timer_t* handle, uv_timer_cb timer_cb, uint64_t timeout,
     uv_timer_stop(handle);
 
   handle->timer_cb = timer_cb;
-  handle->due = get_clamped_due_time(loop->time, timeout);
+  handle->due = get_clamped_due_time(uv__loop_time(loop), timeout);
   handle->repeat = repeat;
   uv__handle_start(handle);
 
@@ -168,7 +188,7 @@ DWORD uv__next_timeout(const uv_loop_t* loop) {
    */
   timer = RB_MIN(uv_timer_tree_s, &((uv_loop_t*)loop)->timers);
   if (timer) {
-    delta = timer->due - loop->time;
+    delta = timer->due - uv__loop_time(loop);
     if (delta >= UINT_MAX - 1) {
       /* A timeout value of UINT_MAX means infinite, so that's no good. */
       return UINT_MAX - 1;
@@ -190,7 +210,7 @@ void uv_process_timers(uv_loop_t* loop) {
 
   /* Call timer callbacks */
   for (timer = RB_MIN(uv_timer_tree_s, &loop->timers);
-       timer != NULL && timer->due <= loop->time;
+       timer != NULL && timer->due <= uv__loop_time(loop);
        timer = RB_MIN(uv_timer_tree_s, &loop->timers)) {
 
     uv_timer_stop(timer);

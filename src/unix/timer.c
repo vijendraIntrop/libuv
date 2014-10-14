@@ -26,6 +26,11 @@
 #include <limits.h>
 
 
+uint64_t uv_now(const uv_loop_t* loop) {
+  return loop->time;
+}
+
+
 static int timer_less_than(const struct heap_node* ha,
                            const struct heap_node* hb) {
   const uv_timer_t* a;

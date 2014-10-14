@@ -315,7 +315,9 @@ RB_HEAD(uv_timer_tree_s, uv_timer_s);
     /* The loop's I/O completion port */                                      \
   HANDLE iocp;                                                                \
   /* The current time according to the event loop. in msecs. */               \
-  uint64_t time;                                                              \
+  /* Don't access these fields directly. Use uv__loop_time() instead. */      \
+  uint64_t cached_time;                                                       \
+  int cached_time_is_valid;                                                   \
   /* Tail of a single-linked circular queue of pending reqs. If the queue */  \
   /* is empty, tail_ is NULL. If there is only one item, */                   \
   /* tail_->next_req == tail_ */                                              \

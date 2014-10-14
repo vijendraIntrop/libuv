@@ -391,12 +391,6 @@ void uv_stop(uv_loop_t* loop) {
 }
 
 
-uint64_t uv_now(const uv_loop_t* loop) {
-  return loop->time;
-}
-
-
-
 size_t uv__count_bufs(const uv_buf_t bufs[], unsigned int nbufs) {
   unsigned int i;
   size_t bytes;

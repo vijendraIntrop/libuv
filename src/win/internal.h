@@ -245,6 +245,7 @@ void uv_timer_endgame(uv_loop_t* loop, uv_timer_t* handle);
 DWORD uv__next_timeout(const uv_loop_t* loop);
 void uv__time_forward(uv_loop_t* loop, uint64_t msecs);
 void uv_process_timers(uv_loop_t* loop);
+uint64_t uv__loop_time(const uv_loop_t* loop);
 
 
 /*
